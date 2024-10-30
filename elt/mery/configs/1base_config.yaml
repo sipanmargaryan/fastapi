@@ -1,0 +1,68 @@
+dashboards:
+    name: "dashboard2"
+    dashboard_unique_identifier: "fisrt"
+    domain: "mery"
+    charts:
+      - name: "chart12"
+        dashboard_chart_unique_identifier: "one"
+        source_table: "users"
+        type: "single_line"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+
+
+      - name: "chart2"
+        dashboard_chart_unique_identifier: "two"
+        source_table: "users"
+        type: "multi_line"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+
+
+      - name: "chart3"
+        dashboard_chart_unique_identifier: "three"
+        source_table: "users"
+        type: "pie_no_center"
+        metrics:
+          column: "name"
+
+
+      - name: "chart4"
+        dashboard_chart_unique_identifier: "four"
+        source_table: "users"
+        type: "pie_with_center"
+        metrics:
+          column: "name"
+
+
+      - name: "chart5"
+        dashboard_chart_unique_identifier: "five"
+        source_table: "users"
+        type: "horizontal_bar"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+
+
+      - name: "chart7"
+        dashboard_chart_unique_identifier: "six"
+        source_table: "users"
+        type: "vertical_bar"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+
+
+      - name: "chart7"
+        dashboard_chart_unique_identifier: "seven"
+        source_table: "users"
+        type: "scatter"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"

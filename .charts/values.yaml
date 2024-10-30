@@ -1,0 +1,75 @@
+replicaCount: 2
+
+image:
+  repository: notSet
+  tag: notSet
+  registrySecret: notSet
+  pullPolicy: Always
+
+service:
+  name: insights
+  externalPort: 80
+  internalPort: 8000
+
+
+autoscaling:
+  enabled: false
+  props: {}
+
+nodeSelector:
+  enabled: false
+  props: {}
+
+
+resources:
+  limits:
+    cpu: "1"
+    memory: 1Gi
+  requests:
+    cpu: "500m"
+    memory: 512Mi
+
+env:
+  ENV: "dev"
+
+secret:
+  CELERY_BROKER_URL: notSet
+
+worker:
+  replicaCount: 2
+
+  image:
+    repository: notSet
+    tag: notSet
+
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1Gi
+    requests:
+      cpu: "500m"
+      memory: 512Mi
+
+
+beat:
+  replicaCount: 1
+
+  image:
+    repository: notSet
+    tag: notSet
+
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1Gi
+    requests:
+      cpu: "500m"
+      memory: 512Mi
+
+  env:
+    C_FORCE_ROOT: "true"
+    CELERY_APPS: "app.worker"
+    CELERYD_CONCURRENCY: "4"
+
+
+domain: api.insights-dev.sentium.io

@@ -1,0 +1,205 @@
+el:
+    domain: mery
+    source_type: s3
+    tables:
+        - table_name: test
+          search_pattern: test.csv
+          key_properties: ["Index"]
+
+dashboards:
+    name: "mery"
+    domain: "test"
+    filters:
+      - col_name: [ "year", "gender" ]
+        filter: [ "< 2016", "= male" ]
+    charts:
+      - name: "chart1"
+        source_table: "users"
+        type: "single_line"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+
+      - name: "chart2"
+        source_table: "users"
+        type: "multi_line"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart3"
+        source_table: "users"
+        type: "pie_no_center"
+        metrics:
+          column: "name"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart4"
+        source_table: "users"
+        type: "pie_with_center"
+        metrics:
+          column: "name"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart5"
+        source_table: "users"
+        type: "horizontal_bar"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart6"
+        source_table: "users"
+        type: "vertical_bar"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart7"
+        source_table: "users"
+        type: "scatter"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart8"
+        source_table: "users"
+        type: "word_cloud"
+        metrics:
+          column: "name"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart9"
+        source_table: "users"
+        type: "table"
+        metrics:
+          column: "name"
+          value: "age"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart10"
+        source_table: "users"
+        type: "heatmap"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart11"
+        source_table: "users"
+        type: "marker"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart12"
+        source_table: "users"
+        type: "gauge"
+        metrics:
+          start: "0"
+          end: "100"
+          column: "age"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+      - name: "chart13"
+        source_table: "users"
+        type: "big_number"
+        metrics:
+          column: "age"
+        color:
+          - primary_color: "#FF0000"
+            secondary_color: "#0000FF"
+            tertiary_color: "#000000"
+        filters:
+          - col_name: [ "year", "gender" ]
+            filter: [ "< 2016", "= male" ]
+
+dbts:
+  source: source.yaml
+  domain: mery
+  models:
+    - test.sql

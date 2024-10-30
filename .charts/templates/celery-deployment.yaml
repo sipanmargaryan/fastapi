@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Values.service.name }}-worker"
+  namespace: {{ .Release.Namespace }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.worker.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: "{{ .Values.service.name }}-worker"
+  template:
+    metadata:
+      labels:
+        app: "{{ .Values.service.name }}-worker"
+        version: "{{ .Values.worker.image.tag }}"
+    spec:
+      imagePullSecrets:
+      - name: {{ .Values.image.registrySecret }}
+      containers:
+        - name: "{{ .Values.service.name }}-worker"
+          image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}"
+          readinessProbe:
+            exec:
+              command: ["celery", "--workdir", "/app/app", "inspect", "ping", "worker.add"]
+            initialDelaySeconds: 80
+            timeoutSeconds: 15
+          livenessProbe:
+            exec:
+              command: ["celery", "--workdir", "/app/app", "inspect", "ping", "worker.add"]
+            initialDelaySeconds: 100
+            timeoutSeconds: 15
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+          {{- range $k, $v := .Values.worker.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+          {{- end }}
+          {{- $serviceName := .Values.service.name }}
+          {{- range $k, $v := .Values.secret }}
+            - name: {{ $k }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $.Values.service.name }}-worker"
+                  key: {{ $k }}
+          {{- end }}
+        

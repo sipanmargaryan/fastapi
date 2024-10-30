@@ -1,0 +1,7 @@
+el:
+    domain: sipan
+    source_type: tap-s3-csv
+    start_date: "2022-01-01"
+    tables:
+        - table_name: sipan
+        - key_properties: id

@@ -1,0 +1,99 @@
+version: "3.7"
+
+services:
+  sso:
+    container_name: sso
+    image: sso
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+  worker:
+    image: worker
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    command: celery -A app.worker.celery_app worker --loglevel=info --autoscale=10,3
+    restart: on-failure
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+      - redis
+  beat:
+    image: beat
+    build:
+      context: .
+      dockerfile: Dockerfile.beat
+    command: celery -A app.worker.celery_app beat -l info
+    restart: on-failure
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+      - redis
+  flower:
+    image: mher/flower
+    container_name: flower
+    command: celery flower
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - FLOWER_PORT=5555
+    ports:
+      - 5555:5555 # docker will expose this ports
+    volumes:
+      - flower_data:/data
+    depends_on:
+      - redis
+      - sso
+      - worker
+      - beat
+  redis:
+    image: redis:7.2
+    volumes:
+      - redis:/data
+  postgres:
+    image: postgres:15.2-alpine
+    container_name: postgres-sso
+    restart: always
+    environment:
+      - POSTGRES_USER=sso
+      - POSTGRES_PASSWORD=pass111
+      - POSTGRES_DB=ssob2
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+    - "1025:1025"
+    - "8025:8025"
+  minio:
+    image: bitnami/minio:latest
+    ports:
+        - "9000:9000"
+        - "9001:9001"
+    environment:
+        - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+        - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  redis:
+  flower_data:
+  minio_data:

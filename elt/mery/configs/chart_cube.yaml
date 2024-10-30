@@ -1,0 +1,21 @@
+chart_cube:
+ {
+  sql: `SELECT {column} FROM {source_table} as tbl`,
+
+  measures: {
+    count: {
+      type: `count`,
+    },
+    percent: {
+      type: `count`,
+      sql: `1 / count(*) * 100`,
+    },
+  },
+
+  dimensions: {
+    yourColumn: {
+      type: `string`,
+      sql: `${source_table}.${column}`,
+    },
+  },
+}

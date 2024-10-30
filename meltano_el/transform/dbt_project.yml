@@ -1,0 +1,23 @@
+name: my_meltano_project
+version: '1.0'
+profile: meltano
+config-version: 2
+require-dbt-version: [">=1.0.0", "<2.0.0"]
+model-paths:
+- "{{ env_var('MODELS_PATH')}}"
+analysis-paths:
+- analysis
+test-paths:
+- tests
+seed-paths:
+- data
+macro-paths:
+- macros
+snapshot-paths:
+- snapshots
+log-path: logs
+packages-install-path: dbt_packages
+clean-targets:
+- ../.meltano/transformers/dbt/target
+- dbt_packages
+- logs

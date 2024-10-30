@@ -1,0 +1,56 @@
+version: 1
+default_environment: dev
+project_id: 66338009-89fa-4f59-8be9-ebac76d45e4e
+environments:
+- name: dev
+- name: staging
+- name: prod
+plugins:
+  extractors:
+  - name: tap-postgres
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/tap-postgres.git
+    config:
+      user: sso
+      host: postgres
+      port: 5432
+      database: postgres
+      filter_schemas:
+      - public
+  - name: tap-mysql
+    variant: transferwise
+    pip_url: pipelinewise-tap-mysql
+  - name: tap-s3-csv
+    variant: transferwise
+    pip_url: pipelinewise-tap-s3-csv
+    config:
+      start_date: '1970-01-01'
+      bucket: harut-test-bucket
+      tables:
+      - table_name: test
+        key_properties:
+        - Index
+        search_pattern: test.csv
+        search_prefix: ''
+  loaders:
+  - name: target-postgres
+    variant: meltanolabs
+    pip_url: meltanolabs-target-postgres
+    config:
+      database: harut
+      host: ${DB_HOST}
+      user: ${DB_USER}
+      password: ${DB_PASSWORD}
+      port: ${DB_PORT}
+      default_target_schema: public
+  utilities:
+  - name: dbt-postgres
+    variant: dbt-labs
+    pip_url: dbt-core~=1.5.2 dbt-postgres~=1.5.2 git+https://github.com/meltano/dbt-ext.git@main
+    config:
+      dbname: harut
+      host: ${DB_HOST}
+      user: ${DB_USER}
+      password: ${DB_PASSWORD}
+      port: ${DB_PORT}
+      schema: analytics

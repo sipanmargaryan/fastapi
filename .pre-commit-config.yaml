@@ -1,0 +1,43 @@
+repos:
+  - repo: https://github.com/ambv/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+        args: # arguments to configure black
+          - --line-length=99
+          - --target-version=py310
+          # these folders wont be formatted by black
+          - --exclude="""\.git |
+            \.__pycache__|
+            \.hg|
+            \.mypy_cache|
+            \.tox|
+            \.venv|
+            _build|
+            buck-out|
+            build|
+            dist|
+            \.pytest_cache|
+            \.dockerignore|
+            scripts|
+            venv|
+            __pycache__"""
+
+        language_version: python3.10
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort (python)
+        exclude: (venv/)
+
+  - repo: https://github.com/pycqa/flake8
+    rev: "5.0.4"
+    hooks:
+      - id: flake8
+        name: flake8
+        entry: flake8
+        language: python
+        types: [python]
+        require_serial: true
+        args: ["--config=.flake8"]

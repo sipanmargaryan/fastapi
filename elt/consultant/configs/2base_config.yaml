@@ -1,0 +1,67 @@
+dashboards:
+    name: "dash"
+    domain: "consultant"
+    charts:
+      - name: "chart1.1"
+        unique_identifier: "one.1"
+        source_table: "users"
+        type: "single_line"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+
+
+      - name: "chart1.2"
+        unique_identifier: "two.2"
+        source_table: "users"
+        type: "multi_line"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+
+
+      - name: "chart1.3"
+        unique_identifier: "three.3"
+        source_table: "users"
+        type: "pie_no_center"
+        metrics:
+          column: "name"
+
+
+      - name: "chart1.4"
+        unique_identifier: "four.4"
+        source_table: "users"
+        type: "pie_with_center"
+        metrics:
+          column: "name"
+
+
+      - name: "chart1.5"
+        unique_identifier: "five.5"
+        source_table: "users"
+        type: "horizontal_bar"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+
+
+      - name: "chart1.6"
+        unique_identifier: "six.6"
+        source_table: "users"
+        type: "vertical_bar"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"
+
+
+      - name: "chart1.7"
+        unique_identifier: "seven.7"
+        source_table: "users"
+        type: "scatter"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+          group_by: "country"

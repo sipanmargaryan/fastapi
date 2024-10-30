@@ -1,0 +1,66 @@
+dashboards:
+    name: "test"
+    domain: "test"
+    charts:
+
+      - name: "chart1"
+        source_table: "users"
+        type: "single_line"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+
+      - name: "chart2"
+        source_table: "users"
+        type: "multi_line"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+
+      - name: "chart3"
+        source_table: "users"
+        type: "pie_no_center"
+        metrics:
+          column: "name"
+
+      - name: "chart4"
+        source_table: "users"
+        type: "pie_with_center"
+        metrics:
+          column: "name"
+
+      - name: "chart5"
+        source_table: "users"
+        type: "horizontal_bar"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+
+      - name: "chart6"
+        source_table: "users"
+        type: "vertical_bar"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+
+      - name: "chart7"
+        source_table: "users"
+        type: "scatter"
+        metrics:
+          x_axis: "name"
+          y_axis: "age"
+
+      - name: "chart"
+        source_table: "users"
+        type: "single_line"
+        metrics:
+          x-axis: "name"
+          y-axis: "age"
+
+      - name: "chart"
+        source_table: "users"
+        type: "multi_line"
+        metrics:
+          x-axis: "name"
+          y-axis: "age"
+

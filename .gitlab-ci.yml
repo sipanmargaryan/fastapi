@@ -1,0 +1,136 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "stage" || $CI_COMMIT_BRANCH == "dev"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "dev"
+      when: always
+    - when: never
+
+variables:
+  IMAGE_NAME: $CI_REGISTRY_IMAGE
+  SERVICE_NAME: "insights"
+  CHART_PATH: "./.charts"
+
+stages:
+  - lint
+  - test
+  - build
+  - build_worker
+  - build_beat
+  - deploy
+
+lint:
+  image: python:3.11-slim
+  stage: lint
+  script:
+    - pip install -r requirements.txt
+    - poetry run black --check .
+    - poetry run isort . --profile black
+
+test:
+   image: python:3.11-slim
+   stage: test
+   script:
+     - pip install -r requirements.txt
+     - poetry install
+     - poetry run pytest
+   allow_failure: true
+
+
+build_image:
+   image:
+     name: gcr.io/kaniko-project/executor:debug
+     entrypoint: [""]
+   stage: build
+   needs: [test]
+   rules:
+     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+   before_script:
+     - TAG=$(echo "${CI_PIPELINE_ID}*0.1" | bc | awk '{printf "%.1f", $0}')
+     - export JOB_ID=$(cat job_id.txt)
+   script:
+     - mkdir -p /kaniko/.docker
+     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
+     - /kaniko/executor
+       --context $CI_PROJECT_DIR
+       --dockerfile $CI_PROJECT_DIR/Dockerfile.dev
+       --destination $IMAGE_NAME:${TAG}
+   artifacts:
+     paths:
+       - job_id.txt
+
+build_worker_image:
+   image:
+     name: gcr.io/kaniko-project/executor:debug
+     entrypoint: [""]
+   stage: build_worker
+   needs: [build_image]
+   rules:
+     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+   before_script:
+     - TAG=$(echo "${CI_PIPELINE_ID}*0.1" | bc | awk '{printf "%.1f", $0}')
+     - export JOB_ID=$(cat job_id.txt)
+   script:
+     - mkdir -p /kaniko/.docker
+     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
+     - /kaniko/executor
+       --context $CI_PROJECT_DIR
+       --dockerfile $CI_PROJECT_DIR/Dockerfile.celery
+       --destination $IMAGE_NAME:"worker-${TAG}"
+   artifacts:
+     paths:
+       - job_id.txt
+
+build_beat_image:
+   image:
+     name: gcr.io/kaniko-project/executor:debug
+     entrypoint: [""]
+   stage: build_beat
+   needs: [build_worker_image]
+   rules:
+     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+   before_script:
+     - TAG=$(echo "${CI_PIPELINE_ID}*0.1" | bc | awk '{printf "%.1f", $0}')
+     - export JOB_ID=$(cat job_id.txt)
+   script:
+     - mkdir -p /kaniko/.docker
+     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
+     - /kaniko/executor
+       --context $CI_PROJECT_DIR
+       --dockerfile $CI_PROJECT_DIR/Dockerfile.beat
+       --destination $IMAGE_NAME:"beat-${TAG}"
+   artifacts:
+     paths:
+       - job_id.txt
+
+deploy:
+ image: dtzar/helm-kubectl
+ stage: deploy
+ needs: [build_worker_image]
+ rules:
+     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+ before_script:
+   - TAG=$(echo "${CI_PIPELINE_ID}*0.1" | bc | awk '{printf "%.1f", $0}')
+   - kubectl config use-context $CI_PROJECT_PATH:$CI_COMMIT_REF_NAME
+   - |
+     if kubectl get secret ${PROJECT_REGISTRY_SECRET} -n $DIGITAL_NAMESPACE >/dev/null 2>&1; then
+       echo "${PROJECT_REGISTRY_SECRET} already exists"
+     else
+       kubectl create secret docker-registry ${PROJECT_REGISTRY_SECRET} --docker-server=${CI_REGISTRY} --docker-username=${CI_DEPLOY_USER} --docker-password=${CI_DEPLOY_PASSWORD} --namespace $DIGITAL_NAMESPACE
+     fi
+   - |
+     setArgs=""
+     for var in $(env | awk -F '=' '{print $1}'); do
+       if [[ $var == INSIGHTS_* ]]; then
+         key=${var#INSIGHTS_} # remove prefix
+         value="${!var}"
+         secretKey="secret.$key"
+         setArgs+=" --set $secretKey=${!var}"
+       fi
+     done
+ script:
+   - helm upgrade $SERVICE_NAME $CHART_PATH --install --namespace $DIGITAL_NAMESPACE --create-namespace --set image.repository="${IMAGE_NAME}" --set image.tag=${TAG} --set worker.image.repository="${IMAGE_NAME}" --set worker.image.tag="worker-${TAG}" --set beat.image.repository="${IMAGE_NAME}" --set beat.image.tag="beat-${TAG}" --set image.registrySecret="${PROJECT_REGISTRY_SECRET}" $setArgs
+ environment:
+   name: development
+
+

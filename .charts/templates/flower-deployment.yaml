@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Values.service.name }}-flower"
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "{{ .Values.service.name }}-flower"
+  template:
+    metadata:
+      labels:
+        app: "{{ .Values.service.name }}-flower"
+    spec:
+      {{- if .Values.nodeSelector.enabled }}
+      {{- with .Values.nodeSelector.props }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      containers:
+        - name: "{{ .Values.service.name }}-flower"
+          image: "mher/flower:latest"
+          ports:
+            - containerPort: 8888
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8888
+            initialDelaySeconds: 6
+            periodSeconds: 4
+            failureThreshold: 4
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8888
+            initialDelaySeconds: 8
+            periodSeconds: 4
+            failureThreshold: 4
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          env:
+            - name: "CELERY_BROKER_URL"
+              value: "{{ .Values.secret.CELERY_BROKER_URL }}"
+            - name: "CELERY_RESULT_BACKEND"
+              value: "{{ .Values.secret.CELERY_BROKER_URL }}"
+            - name: "FLOWER_PORT"
+              value: "8888"

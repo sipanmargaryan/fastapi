@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Values.service.name }}-beat"
+  namespace: {{ .Release.Namespace }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.beat.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: "{{ .Values.service.name }}-beat"
+  template:
+    metadata:
+      labels:
+        app: "{{ .Values.service.name }}-beat"
+        version: "{{ .Values.beat.image.tag }}"
+    spec:
+      imagePullSecrets:
+      - name: {{ .Values.image.registrySecret }}
+      containers:
+        - name: "{{ .Values.service.name }}-beat"
+          image: "{{ .Values.beat.image.repository }}:{{ .Values.beat.image.tag }}"
+          readinessProbe:
+            exec:
+              command: ["celery", "--workdir", "/app/app", "inspect", "ping", "beat.add"]
+            initialDelaySeconds: 80
+            timeoutSeconds: 15
+          livenessProbe:
+            exec:
+              command: ["celery", "--workdir", "/app/app", "inspect", "ping", "beat.add"]
+            initialDelaySeconds: 100
+            timeoutSeconds: 15
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+          {{- range $k, $v := .Values.beat.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+          {{- end }}
+          {{- $serviceName := .Values.service.name }}
+          {{- range $k, $v := .Values.secret }}
+            - name: {{ $k }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $.Values.service.name }}-worker"
+                  key: {{ $k }}
+          {{- end }}
+        

@@ -1,0 +1,10 @@
+dbt:
+  source_filename: source.yaml
+  domain: levon
+  models:
+    - query1.sql
+    - query2.sql
+
+el:
+    domain: levon
+    source_type: postgres

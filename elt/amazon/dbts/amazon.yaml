@@ -1,0 +1,25 @@
+el:
+    domain: amazon
+    source_type: s3
+    tables:
+        - table_name: test
+          search_pattern: test.csv
+          key_properties: ["Index"]
+
+dashboards:
+    name: "amazon"
+    domain: "amazon"
+    charts:
+      - name: "chart1"
+        source_table: "dbt_table"
+        type: "pie_no_center"
+        metrics:
+          column: "Founded"
+
+
+
+dbts:
+  source: source.yaml
+  domain: amazon
+  models:
+    - dbt_table.sql

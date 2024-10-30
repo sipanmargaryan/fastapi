@@ -1,0 +1,122 @@
+el:
+    domain: amazon
+    source_type: s3
+    tables:
+        - table_name: test
+          search_pattern: test.csv
+          key_properties: ["Index"]
+
+dashboards:
+    name: "amazon"
+    domain: "amazon"
+    dashboard_unique_identifier: "amazon_dashboard"
+    charts:
+      - name: "chart1"
+        source_table: "dashboards"
+        dashboard_chart_unique_identifier: "chart_pie"
+        sql: select data_rank, count(*) as founded From casinos_new group by data_rank
+        label_field: "data_rank"
+        type: "pie_no_center"
+        metrics:
+          column: "founded"
+
+      - name: "chart2"
+        source_table: "dashboards"
+        dashboard_chart_unique_identifier: "chart_line"
+        sql: select data_type, count(*) as type_count From casinos_new group by data_type
+        type: "single_line"
+        metrics:
+          x-axis: "data_type"
+          y-axis: "type_count"
+
+      - name: "chart3"
+        source_table: "dashboards"
+        dashboard_chart_unique_identifier: "chart_vertical"
+        sql: select data_type, count(*) as type_count From casinos_new group by data_type
+        type: "vertical_bar"
+        metrics:
+          x-axis: "data_type"
+          y-axis: "type_count"
+      
+      - name: "chart4"
+        source_table: "dashboards"
+        dashboard_chart_unique_identifier: "chart_horizontal"
+        sql: select data_type, count(*) as type_count From casinos_new group by data_type
+        type: "horizontal_bar"
+        metrics:
+          x-axis: "data_type"
+          y-axis: "type_count"
+
+
+      - name: "chart5"
+        source_table: "dashboards"
+        dashboard_chart_unique_identifier: "multi_line"
+        type: "multi_line"
+        lines:
+          - name: "first_line"
+            sql: select data_type, count(*) as type_count From casinos_new group by data_type
+          - name: "second_line"
+            sql: select data_type, count(*) as type_count From casinos_new group by data_type
+        metrics:
+          x-axis: "data_type"
+          y-axis: "type_count"
+
+
+      - name: "chart6"
+        source_table: "dashboards"
+        dashboard_chart_unique_identifier: "radar"
+        type: "radar"
+        lines:
+          - name: "first_line"
+            sql: select data_type, count(*) as type_count From casinos_new group by data_type
+          - name: "second_line"
+            sql: select data_type, count(*) as type_count From casinos_new group by data_type
+        metrics:
+          x-axis: "data_type"
+          y-axis: "type_count"
+
+      # - name: "chart7"
+      #   source_table: "dashboards"
+      #   dashboard_chart_unique_identifier: "chart_radar_bar"
+      #   type: "radar_bar"
+      #   lines:
+      #     - name: "first_line"
+      #       sql: select data_type, count(*) as type_count From casinos_new group by data_type
+      #     - name: "second_line"
+      #       sql: select data_type, count(*) as type_count From casinos_new group by data_type
+      #   metrics:
+      #     x-axis: "data_type"
+      #     y-axis: "type_count"
+
+      # - name: "chart8"
+      #   source_table: "dashboards"
+      #   dashboard_chart_unique_identifier: "area"
+      #   type: "area"
+      #   lines:
+      #     - name: "first_line"
+      #       sql: select data_type, count(*) as type_count From casinos_new group by data_type
+      #     - name: "second_line"
+      #       sql: select data_type, count(*) as type_count From casinos_new group by data_type
+      #   metrics:
+      #     x-axis: "data_type"
+      #     y-axis: "type_count"
+
+      # - name: "chart9"
+      #   source_table: "dashboards"
+      #   dashboard_chart_unique_identifier: "composed"
+      #   type: "composed"
+      #   lines:
+      #     - name: "first_line"
+      #       sql: select data_type, count(*) as type_count From casinos_new group by data_type
+      #     - name: "second_line"
+      #       sql: select data_type, count(*) as type_count From casinos_new group by data_type
+      #   metrics:
+      #     x-axis: "data_type"
+      #     y-axis: "type_count"
+
+
+dbts:
+  source: source.yaml
+  domain: amazon
+  models:
+    - dbt_table.sql

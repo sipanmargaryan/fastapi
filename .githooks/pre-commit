@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if ! command -v black &>/dev/null; then
+	exit 0
+fi
+
+black -- **/*.py
